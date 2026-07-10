@@ -15,6 +15,7 @@ use std::{
     io::Write,
     mem, time,
 };
+use chrono::Utc;
 
 struct CStrStaticPtr([*const std::os::raw::c_char; 1]);
 
@@ -1017,8 +1018,10 @@ fn test_device<Writer: std::io::Write>(
                 {
                     close::raise_status_bit(close::app_status::RUNTIME_ERRORS);
                     let test_elems = test_window_size / ELEMENT_SIZE;
+                    let utc_str = Utc::now().format("%Y-%m-%dT%H:%M:%S%.6fZ").to_string();
                     write!(log_dupler,
-                        "Error found. Mode {}, total errors 0x{:X} out of 0x{:X} ({:2.8}%)\nErrors address range: {:?}",
+                        "{} timestamp Error found. Mode {}, total errors 0x{:X} out of 0x{:X} ({:2.8}%)\nErrors address range: {:?}",
+                        utc_str,
                         if reread_mode_for_this_win {
                             "NEXT_RE_READ"
                         } else {
@@ -1082,7 +1085,8 @@ fn test_device<Writer: std::io::Write>(
                     "use Ctrl+C to stop it when you decide it's enough"
                 )?;
             } else {
-                writeln!(log_dupler, "{:7} iteration. Passed {:7.4} seconds  written:{:7.1}GB{:6.1}GB/sec        checked:{:7.1}GB{:6.1}GB/sec", iteration, elapsed.as_secs_f32(), written_bytes as f32 / GB, write_speed_gbps, read_bytes as f32 / GB, check_speed_gbps)?;
+                let utc_str = Utc::now().format("%Y-%m-%dT%H:%M:%S%.6fZ").to_string();
+                writeln!(log_dupler, "{} timestamp {:7} iteration. Passed {:7.4} seconds  written:{:7.1}GB{:6.1}GB/sec        checked:{:7.1}GB{:6.1}GB/sec", utc_str, iteration, elapsed.as_secs_f32(), written_bytes as f32 / GB, write_speed_gbps, read_bytes as f32 / GB, check_speed_gbps)?;
             }
             reports_before_standard_done -= 1;
             if reports_before_standard_done == 0 {
